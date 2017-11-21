@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Laravel\Forge\ApiProvider;
+use Laravel\Forge\Forge;
 class ServerController extends Controller
 {
     /**
@@ -35,6 +36,20 @@ class ServerController extends Controller
     public function store(Request $request)
     {
         //
+        $forge = new Forge(new ApiProvider('api-token'));
+        $credential = $forge->credentialFor('ocean2');
+
+        // This will create new droplet on DigitalOcean with 1GB memory,
+        // PHP 7.1 and MariaDb at Frankfurt region.
+        $server = $forge->create()
+            ->droplet()
+            ->usingCredential($credential)
+            ->withMemoryOf($request->ram)
+            ->at('sfo1')
+            ->runningPhp('7.1')
+            //->withMariaDb()
+            ->save();
+            return response()->json($server);
     }
 
     /**
